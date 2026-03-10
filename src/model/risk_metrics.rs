@@ -1,4 +1,4 @@
-use crate::math::{RandomDistribution, RandomGen, STD_NORMAL};
+use crate::math::{Pcgrnginc, RandomDistribution, RandomGen, STD_NORMAL};
 
 pub struct SimulationData<'a, const N: usize, const R: usize>
 where
@@ -10,6 +10,7 @@ where
     pub ead: Vec<f32>,
     pub lgd: Vec<f32>,
     pub pd: Vec<f32>,
+    pub r_factor: Vec<f32>,
     pub corr_cholesky: &'a [f32; N * N],
     pub transition_matrix: &'a [f32; R * R],
 }
@@ -44,22 +45,39 @@ pub struct CptyLevelResults {
     pub cvar: Vec<f32>,
 }
 
+pub trait SimFunctions {
+    fn get_systematic_shocks<const N: usize, T, RNG: RandomGen<T>>(rng: &mut RNG, buf: &mut [f32]);
+}
+
+pub struct BaseSimFunctions;
+
+impl SimFunctions for BaseSimFunctions {
+    fn get_systematic_shocks<const N: usize>(rng: &mut Pcgrnginc, buf: &mut [f32]) {
+        STD_NORMAL.sample_into(rng, buf);
+    }
+}
+
 impl RiskMetrics {
-    pub fn simulate_portfolio_level<const N: usize, const R: usize, T>(
+    pub fn simulate_portfolio_level<
+        const N_INDUSTRIES: usize,
+        const R: usize,
+        T,
+        Sim: SimFunctions,
+    >(
         &self,
-        data: &SimulationData<N, R>,
+        data: &SimulationData<N_INDUSTRIES, R>,
         rng: &mut impl RandomGen<T>,
     ) -> RiskMetricsResult
     where
-        [(); N * N]:,
+        [(); N_INDUSTRIES * N_INDUSTRIES]:,
         [(); R * R]:,
     {
         data.verify_industry_indices(); // Guards against invalid industry indices -> can use unchecked access in the simulation loop
         let mut idiosyncratic_shocks = vec![0f32; data.cpty_ids.len()];
-        let mut systematic_shocks = vec![0f32; N];
+        let systematic_shocks = &mut [0f32; N_INDUSTRIES];
         // Main loop
         for _ in 0..self.n_simulations {
-            // STD_NORMAL.sample_into(rng, &mut systematic_shocks);
+            Sim::get_systematic_shocks::<N_INDUSTRIES, T, _>(rng, systematic_shocks);
         }
 
         todo!()
