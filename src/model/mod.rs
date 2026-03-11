@@ -1,1 +1,1 @@
-mod risk_metrics;
+pub mod risk_metrics;

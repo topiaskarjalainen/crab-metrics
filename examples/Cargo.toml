@@ -22,6 +22,10 @@ harness = false
 name = "gemv"
 harness = false
 
+[[bench]]
+name = "risk_metrics"
+harness = false
+
 
 [profile.bench]
 opt-level = 3
