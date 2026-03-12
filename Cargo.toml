@@ -11,3 +11,9 @@ lazy_static = "1.5.0"
 
 [workspace.dependencies]
 crab_metrics = { path = "." }
+
+
+
+
+[profile.bench]
+opt-level = 3
