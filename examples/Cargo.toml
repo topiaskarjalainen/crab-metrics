@@ -27,5 +27,11 @@ name = "risk_metrics"
 harness = false
 
 
+[[bench]]
+name = "full_model"
+harness = false
+
+
+
 [profile.bench]
 opt-level = 3

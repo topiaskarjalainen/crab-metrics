@@ -185,7 +185,7 @@ impl SimFunctions for BaseSimFunctions {
                 if pd >= default_threshold {
                     default_loss_sum += ead * lgd * ma;
                 } else {
-                    migration_loss_sum += ead * lgd * pd;
+                    migration_loss_sum += ead * lgd * pd * ma;
                 }
             });
         *out_default_loss = default_loss_sum;
